@@ -10,6 +10,8 @@ long baseTime = 1000/3;
 long baseActivePeriod = 300/3;
 boolean lastActive;
 unsigned long lastActiveTime = 0;
+long lastRead = 0;
+long readDelay = 10;
 
 void setup() {
   Serial.begin(9600);
@@ -23,7 +25,10 @@ void setup() {
 void loop() {
   curTime = millis() - startTime;
   int rotation = analogRead(encoder);
-  Serial.println(rotation);
+  if((curTime - lastRead) > readDelay){
+    Serial.println(curTime);
+    lastRead = curTime;
+  }
   // creating an alternative button control to make system wait until a button is pressed before beginning
   if(!buttonPressed){
     if(digitalRead(buttonInput)){
