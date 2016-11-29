@@ -30,6 +30,9 @@ long readDelay = 10;
 int potentiometer = A1;
 int potentiometerMin = 0;
 int potentiometerMax = 1023; // need to determine min and max values for potentiometer input
+long rpmTime = 0;
+bool lastRPMMeasure = true;
+int rpm = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -50,6 +53,18 @@ void loop() {
   curTime = millis() - startTime;
   int rotation = analogRead(encoder);
   int pot = analogRead(potentiometer);
+
+  if(lastRPMMeasure && (pot > 500)){
+    Serial.println(60000/(curTime - rpmTime)); // print rpm to serial
+    rpmTime = curTime;
+  }
+  if(pot > 500){
+    lastRPMMeasure = false;
+  }
+  else if(pot < 500){
+    lastRPMMeasure = true;
+  }
+
   // creating an alternative button control to make system wait until a button is pressed before beginning
   if(!buttonPressed){
     if(digitalRead(buttonInput)){
