@@ -5,6 +5,7 @@ int thermo4 = A3;
 int thermo5 = A4;
 int thermo6 = A5;
 int fanDriver = 11;
+long thermoAverage;
 void setup() {
   pinMode(thermo1, INPUT);
   pinMode(thermo2, INPUT);
