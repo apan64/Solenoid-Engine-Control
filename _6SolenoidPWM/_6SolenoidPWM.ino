@@ -13,12 +13,12 @@ int encoder = A0;
 //int encoder4 = A3;
 //int encoder5 = A4;
 //int encoder6 = A5;
-int startRotationRange1 = 505;
-int endRotationRange1 = 900;
-int startRotationRange2 = 505;
-int endRotationRange2 = 900;
-int startRotationRange3 = 505;
-int endRotationRange3 = 900;
+int startRotationRange1 = 70 ;
+int endRotationRange1 = 730;
+int startRotationRange2 = 500;
+int endRotationRange2 = 50;
+int startRotationRange3 = 800;
+int endRotationRange3 = 470;
 unsigned long startTime;
 unsigned long curTime;
 long baseTime = 1000/3;
@@ -33,7 +33,9 @@ int potentiometerMax = 1023; // need to determine min and max values for potenti
 long rpmTime = 0;
 bool lastRPMMeasure = true;
 int rpm = 0;
-int desired_rpm = 300;
+int desired_rpm = 10;
+float error;
+float output;
 
 
 float integral = 0;
@@ -75,8 +77,7 @@ void loop() {
     rpm = 60000/(curTime-rpmTime);
     Serial.println(rpm); // print rpm to serial
 
-    // PI loop
-    error = (desired_rpm – rpm)/desired_rpm; //error is positive if we're too slow. This will be 1000+ at startup.
+    error = (desired_rpm - rpm) / desired_rpm;
     integral = integral + (error*(curTime-rpmTime)/1000);
     output = KP*error + KI*integral; //our output needs to be between 0 and 1
    
@@ -90,26 +91,26 @@ void loop() {
   }
 
   // creating an alternative button control to make system wait until a button is pressed before beginning
-  if(!buttonPressed){
-    if(digitalRead(buttonInput)){
-      buttonPressed = true;
-    }
-  }
+//  if(!buttonPressed){
+//    if(digitalRead(buttonInput)){
+//      buttonPressed = true;
+//    }
+//  }
 else{
   if(rotation > startRotationRange1 && rotation < endRotationRange1){
-    analogWrite(solenoid1, 255 * output);
+    analogWrite(solenoid1, 255);
     analogWrite(solenoid2, 0);
     analogWrite(solenoid3, 0);
   }
   else if(rotation > startRotationRange2 && rotation < endRotationRange2){
     analogWrite(solenoid1, 0);
-    analogWrite(solenoid2, 255 * output);
+    analogWrite(solenoid2, 255);
     analogWrite(solenoid3, 0);
   }
   else if(rotation > startRotationRange3 && rotation < endRotationRange3){
     analogWrite(solenoid1, 0);
     analogWrite(solenoid2, 0);
-    analogWrite(solenoid3, 255 * output);
+    analogWrite(solenoid3, 255);
   }
 }
   
