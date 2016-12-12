@@ -36,10 +36,7 @@ int rpm = 0;
 int desired_rpm = 300;
 
 
-float integral = 0.0;
-float error = 0.0;
-float integral = 0.0;
-float output = 0.0;
+float integral = 0;
 float KP = 0.6;// Proportional constant
 float KI = 0.5;// Integral constant
 
@@ -52,9 +49,6 @@ void setup() {
   pinMode(solenoid1, OUTPUT);
   pinMode(solenoid2, OUTPUT);
   pinMode(solenoid3, OUTPUT);
-//  pinMode(solenoid4, OUTPUT);
-//  pinMode(solenoid5, OUTPUT);
-//  pinMode(solenoid6, OUTPUT);
   pinMode(encoder, INPUT);
   pinMode(buttonInput, INPUT);
   pinMode(potentiometer, INPUT);
@@ -73,7 +67,6 @@ void loop() {
   if (Serial.available() > 0) {
   parseString(Serial.readString());}
 
-  
   curTime = millis() - startTime;
   int rotation = analogRead(encoder);
   int pot = analogRead(potentiometer);
@@ -82,22 +75,11 @@ void loop() {
     rpm = 60000/(curTime-rpmTime);
     Serial.println(rpm); // print rpm to serial
 
-
-    // ######## PI control loop ########
-    
-    error = (float)(desired_rpm – rpm)/ (float) desired_rpm; //error is positive if we're too slow. This will be 1000+ at startup.
+    // PI loop
+    error = (desired_rpm – rpm)/desired_rpm; //error is positive if we're too slow. This will be 1000+ at startup.
     integral = integral + (error*(curTime-rpmTime)/1000);
-    output = KP*error + KI*integral; //our output needs to be between 0 and 1, since we're multiplying it by 255. Either that or 
-
-
-    // ######## Simpler control code - no PID #########
-
-    if (rpm < desired_rpm) {
-      output = 1.0;
-      } else {
-        output = 0.0;
-        }
-    
+    output = KP*error + KI*integral; //our output needs to be between 0 and 1
+   
     rpmTime = curTime;
   }
   if(rotation > 500){
@@ -107,10 +89,6 @@ void loop() {
     lastRPMMeasure = true;
   }
 
-
-
- 
-
   // creating an alternative button control to make system wait until a button is pressed before beginning
   if(!buttonPressed){
     if(digitalRead(buttonInput)){
@@ -119,28 +97,19 @@ void loop() {
   }
 else{
   if(rotation > startRotationRange1 && rotation < endRotationRange1){
-    analogWrite(solenoid1, (int) (255 * output));
+    analogWrite(solenoid1, 255 * output);
     analogWrite(solenoid2, 0);
     analogWrite(solenoid3, 0);
-//    analogWrite(solenoid4, 0);
-//    analogWrite(solenoid5, 0);
-//    analogWrite(solenoid6, 255 * (pot - potentiometerMin) / (potentiometerMax - potentiometerMin));
   }
   else if(rotation > startRotationRange2 && rotation < endRotationRange2){
     analogWrite(solenoid1, 0);
-    analogWrite(solenoid2, (int) (255 * output));
+    analogWrite(solenoid2, 255 * output);
     analogWrite(solenoid3, 0);
-//    analogWrite(solenoid4, 0);
-//    analogWrite(solenoid5, 255 * (pot - potentiometerMin) / (potentiometerMax - potentiometerMin));
-//    analogWrite(solenoid6, 0);
   }
   else if(rotation > startRotationRange3 && rotation < endRotationRange3){
     analogWrite(solenoid1, 0);
     analogWrite(solenoid2, 0);
-    analogWrite(solenoid3, (int) (255 * output));
-//    analogWrite(solenoid4, 255 * (pot - potentiometerMin) / (potentiometerMax - potentiometerMin));
-//    analogWrite(solenoid5, 0);
-//    analogWrite(solenoid6, 0);
+    analogWrite(solenoid3, 255 * output);
   }
 }
   

@@ -36,30 +36,21 @@ void loop() {
     }
   }
 else{
-//  if(curTime < 3000){                           // start rotating at one rotation per second to have initial velocity
-//    if((curTime % baseTime) < baseActivePeriod){// solenoid active for a third of the time
-//      digitalWrite(solenoid, HIGH);
-//    }
-//    else{
-//      digitalWrite(solenoid, LOW);
-//    }
-//  }
-//  else{
-    if(rotation > startRotationRange && rotation < endRotationRange){ // check to see that shaft is in rotation range to activate solenoid
-//      if(!lastActive){                          // keep track of the last state of the solenoid (active, inactive)
-//        lastActive = true;
-//        if((millis() - lastActiveTime) < 30){   // setting control to limit upper rpm
-//          Serial.println("Waiting, too fast");
-//        }
-//        lastActiveTime = millis();              // mark the time solenoid switched from inactive to active
-//      }
+    if(rotation > startRotationRange && rotation < endRotationRange){ // check to see that shaft is in rotation range
+      if(!lastActive){                          // keep track of the last state of the solenoid (active, inactive)
+        lastActive = true;
+        if((millis() - lastActiveTime) < 30){   // setting control to limit upper rpm
+          Serial.println("Waiting, too fast");
+        }
+        lastActiveTime = millis();              // mark the time solenoid switched from inactive to active
+      }
       digitalWrite(solenoid, HIGH);
     }
     else{
       digitalWrite(solenoid, LOW);
       lastActive = false;
     }
-//  }
+
 }
   
 }

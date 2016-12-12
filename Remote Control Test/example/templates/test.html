@@ -23,41 +23,27 @@
                 socket.emit('my event', {data: 'I\'m connected!'});
             });
 
+// <!-- socket.emit(event name, dictionary of things that the python event handler needs) apparently tells the python code in app.py to trigger said event-->
 
             var x = document.getElementsByClassName("controlArduino");
             for (var i = 0; i < x.length; i++) {
-
-                    // x[i].onmousedown = function() {mouseDown("moving " + z.toString())};
                     x[i].onmouseup = function() {mouseUp()};
             }
-
-            // $('button#upTick').onmouseup = function(){mouseUp()};
 
             function mouseUp() {
                 socket.emit('arduino_control', {data:'test button click'});
                 return false;
                     };
 
-
             $('form#send_room').submit(function(event) {
                 socket.emit('send_to_arduino', {data: $('#data_to_send').val()});
                 return false;
             });
 
-            // $('#testButton').onmousedown = function() {doSomething("button down")};
-
-            // function doSomething(x) {
-            //     socket.emit('testButtonClicked', {data:x});
-            //     return false;
-            // };
-
-
-
-
         });
     </script>
 
-<!-- socket.emit(event name, dictionary of things that the python event handler needs) apparently tells the python code in app.py to trigger said event-->
+
 
 </head>
     <body>
@@ -67,7 +53,6 @@
         <button id="startarduino" class = 'controlArduino' name ='start_arduino'>Start Arduino</button>
         <form id="send_room" method="POST" action='#'>
             <input type="text" name="send_data" id="data_to_send" placeholder="Send Data">
-            <!-- <input type="text" name="room_data" id="room_data" placeholder="Message"> -->
             <input type="submit" value="Send">
         </form>
 

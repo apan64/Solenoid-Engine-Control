@@ -77,7 +77,6 @@ def test():
 
 
 arduino = None
-#Might need to make the arduino mentioned in the next 2 functions a global variable
 
 @socketio.on('arduino_control',namespace='/test')
 def serial_start(message):
