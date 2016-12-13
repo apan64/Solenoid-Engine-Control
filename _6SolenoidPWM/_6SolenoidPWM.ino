@@ -13,12 +13,26 @@ int encoder = A0;
 //int encoder4 = A3;
 //int encoder5 = A4;
 //int encoder6 = A5;
-int startRotationRange1 = 70 ;
-int endRotationRange1 = 730;
+
+
+int startRotationRange1 = 820; //start high -> end low or start low -> end high?
+//int endRotationRange1 = 512;
+int endRotationRange1 = 400;
+//int endRotationRange1 = 682;
+//int endRotationRange1 = 340;
+
 int startRotationRange2 = 500;
-int endRotationRange2 = 50;
-int startRotationRange3 = 800;
-int endRotationRange3 = 470;
+//int endRotationRange2 = 853;
+int endRotationRange2 = 60;
+//int endRotationRange2 = 1023;
+//int endRotationRange2 = 681;
+
+int startRotationRange3 = 220;
+//int endRotationRange3 = 171;
+int endRotationRange3 = 690;
+//int endRotationRange3 = 341;
+//int endRotationRange3 = 1023; // control code for firing solenoid 3 has to change if it doesn't loop around 1023!
+
 unsigned long startTime;
 unsigned long curTime;
 long baseTime = 1000/3;
@@ -35,14 +49,12 @@ bool lastRPMMeasure = true;
 int rpm = 0;
 int desired_rpm = 10;
 float error;
-float output;
+float output = 1.0;
 
 
-float integral = 0;
-float KP = 0.6;// Proportional constant
-float KI = 0.5;// Integral constant
-
-
+float integral = 0.0;
+float KP = 0.5;// Proportional constant
+float KI = 0.2;// Integral constant
 
 
 
@@ -71,15 +83,30 @@ void loop() {
 
   curTime = millis() - startTime;
   int rotation = analogRead(encoder);
+  Serial.println(rotation);
   int pot = analogRead(potentiometer);
 
   if(lastRPMMeasure && (rotation > 500)){
     rpm = 60000/(curTime-rpmTime);
-    Serial.println(rpm); // print rpm to serial
+//    Serial.println(rpm); // print rpm to serial
 
-    error = (desired_rpm - rpm) / desired_rpm;
-    integral = integral + (error*(curTime-rpmTime)/1000);
-    output = KP*error + KI*integral; //our output needs to be between 0 and 1
+//    error = (desired_rpm - rpm) / desired_rpm;
+//    if (abs(error)>0.25){
+//  integral = 0;    
+//} else {
+//    integral = integral + (error*(curTime-rpmTime)/1000);
+//  }
+
+//    output = KP*error + KI*integral; //our output needs to be between 0 and 1
+
+//      if (output > 1.0) {
+//        output = 1.0;
+//        } else if (output < 0.0) {
+//          output = 0.0;
+//          }
+          
+      output = 1.0;
+
    
     rpmTime = curTime;
   }
@@ -90,28 +117,27 @@ void loop() {
     lastRPMMeasure = true;
   }
 
-  // creating an alternative button control to make system wait until a button is pressed before beginning
-//  if(!buttonPressed){
-//    if(digitalRead(buttonInput)){
-//      buttonPressed = true;
-//    }
-//  }
-else{
-  if(rotation > startRotationRange1 && rotation < endRotationRange1){
-    analogWrite(solenoid1, 255);
-    analogWrite(solenoid2, 0);
-    analogWrite(solenoid3, 0);
-  }
-  else if(rotation > startRotationRange2 && rotation < endRotationRange2){
-    analogWrite(solenoid1, 0);
-    analogWrite(solenoid2, 255);
-    analogWrite(solenoid3, 0);
-  }
-  else if(rotation > startRotationRange3 && rotation < endRotationRange3){
-    analogWrite(solenoid1, 0);
-    analogWrite(solenoid2, 0);
-    analogWrite(solenoid3, 255);
-  }
-}
+
+  if(rotation < startRotationRange1 && rotation > endRotationRange1){
+    Serial.println("running 1");
+    analogWrite(solenoid1, (int) (255 * output));
+  } else {
+    analogWrite(solenoid1,0);
+    }
+
   
+  if(rotation < startRotationRange2 && rotation > endRotationRange2){
+    Serial.println("running 2"); 
+    analogWrite(solenoid2, (int) (255 * output));
+  } else {
+    analogWrite(solenoid2,0);
+    }
+  
+  if(rotation < startRotationRange3 || rotation > endRotationRange3){
+//  if (rotation > startRotationRange3 && rotation < endRotationRange3){
+    Serial.println("running 3"); 
+    analogWrite(solenoid3, (int) (255 * output));
+  } else {
+    analogWrite(solenoid3,0);
+    }
 }
