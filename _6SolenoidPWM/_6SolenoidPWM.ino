@@ -1,13 +1,15 @@
 // need to determine which arduino pins are actually capable of analog outputs
-int solenoid1 = 3; //and solenoid 6
-int solenoid2 = 5; // and solenoid 5
-int solenoid3 = 6; // and solenoid 4
+int solenoid1 = 3; // solenoids 3+4
+int solenoid2 = 5; // solenoids 2+5
+int solenoid3 = 6; // solenoids 1+6
 //int solenoid4 = 9;
 //int solenoid5 = 10;
 //int solenoid6 = 11;
 int buttonInput = 8;
 boolean buttonPressed = false;
 int encoder = A0;
+int thermocouple = A1;
+int fans = 9;
 //int encoder2 = A1;
 //int encoder3 = A2;
 //int encoder4 = A3;
@@ -15,21 +17,21 @@ int encoder = A0;
 //int encoder6 = A5;
 
 
-int startRotationRange1 = 820; //start high -> end low or start low -> end high?
+int startRotationRange1 = 765; //start high -> end low or start low -> end high?
 //int endRotationRange1 = 512;
-int endRotationRange1 = 400;
+int endRotationRange1 = 230;
 //int endRotationRange1 = 682;
 //int endRotationRange1 = 340;
 
-int startRotationRange2 = 500;
+int startRotationRange2 = 205;
 //int endRotationRange2 = 853;
-int endRotationRange2 = 60;
+int endRotationRange2 = 630;
 //int endRotationRange2 = 1023;
 //int endRotationRange2 = 681;
 
-int startRotationRange3 = 220;
+int startRotationRange3 = 400;
 //int endRotationRange3 = 171;
-int endRotationRange3 = 690;
+int endRotationRange3 = 815;
 //int endRotationRange3 = 341;
 //int endRotationRange3 = 1023; // control code for firing solenoid 3 has to change if it doesn't loop around 1023!
 
@@ -66,6 +68,7 @@ void setup() {
   pinMode(encoder, INPUT);
   pinMode(buttonInput, INPUT);
   pinMode(potentiometer, INPUT);
+  pinMode(fans, OUTPUT);
   startTime = millis();
   lastActive = false;
 }
@@ -77,6 +80,7 @@ void parseString(String input){
   }
 
 void loop() {
+  analogWrite(fans, 255 * analogRead(thermocouple / 200));
   //Listen for serial input here
   if (Serial.available() > 0) {
   parseString(Serial.readString());}
@@ -117,27 +121,56 @@ void loop() {
     lastRPMMeasure = true;
   }
 
-
-  if(rotation < startRotationRange1 && rotation > endRotationRange1){
+if(endRotationRange1 > startRotationRange1){
+  if(rotation > startRotationRange1 && rotation < endRotationRange1){
     Serial.println("running 1");
     analogWrite(solenoid1, (int) (255 * output));
   } else {
     analogWrite(solenoid1,0);
     }
-
+}
+else{
+  if(rotation > startRotationRange1 || rotation < endRotationRange1){
+    Serial.println("running 1");
+    analogWrite(solenoid1, (int) (255 * output));
+  }
+  else{
+    analogWrite(solenoid1, 0);
+  }
+}
   
-  if(rotation < startRotationRange2 && rotation > endRotationRange2){
-    Serial.println("running 2"); 
+if(endRotationRange2 > startRotationRange2){
+  if(rotation > startRotationRange2 && rotation < endRotationRange2){
+    Serial.println("running 2");
     analogWrite(solenoid2, (int) (255 * output));
   } else {
     analogWrite(solenoid2,0);
     }
-  
-  if(rotation < startRotationRange3 || rotation > endRotationRange3){
-//  if (rotation > startRotationRange3 && rotation < endRotationRange3){
-    Serial.println("running 3"); 
+}
+else{
+  if(rotation > startRotationRange2 || rotation < endRotationRange2){
+    Serial.println("running 2");
+    analogWrite(solenoid2, (int) (255 * output));
+  }
+  else{
+    analogWrite(solenoid2, 0);
+  }
+}
+if(endRotationRange3 > startRotationRange3){
+  if(rotation > startRotationRange3 && rotation < endRotationRange3){
+    Serial.println("running 3");
     analogWrite(solenoid3, (int) (255 * output));
   } else {
     analogWrite(solenoid3,0);
     }
+}
+else{
+  if(rotation > startRotationRange3 || rotation < endRotationRange3){
+    Serial.println("running 3");
+    analogWrite(solenoid3, (int) (255 * output));
+  }
+  else{
+    analogWrite(solenoid3, 0);
+  }
+}
 }
