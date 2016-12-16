@@ -75,14 +75,14 @@ def test():
     return render_template('test.html')
 
 
-
-arduino = None
+import serial
+arduino = serial.Serial('COM8', 9600, timeout=0.5)
 
 @socketio.on('arduino_control',namespace='/test')
 def serial_start(message):
     import serial
     global arduino 
-    arduino = serial.Serial('COM7', 9600, timeout=0.5, dsrdtr = True)
+    # arduino = serial.Serial('COM7', 9600, timeout=0.5, dsrdtr = True)
 
 @socketio.on('send_to_arduino',namespace='/test')
 def serial_control(message):
